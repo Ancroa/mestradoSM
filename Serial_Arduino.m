@@ -22,7 +22,7 @@ function varargout = Serial_Arduino(varargin)
 
 % Edit the above text to modify the response to help Serial_Arduino
 
-% Last Modified by GUIDE v2.5 04-Apr-2018 13:02:29
+% Last Modified by GUIDE v2.5 11-Apr-2018 14:38:20
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -92,7 +92,7 @@ Porta_Conectada=1;
 
 % Enquanto a porta não for conectada permanece no while
 while Porta_Conectada
-    s = serial(['COM' num2str(portNum)]);
+    s = serial(['COM' num2str(Numero_da_Porta)]);
     try
         % Setando os parâmetros da Serial
         set(s, 'InputBufferSize', 128); %number of bytes in inout buffer
@@ -107,42 +107,48 @@ while Porta_Conectada
         fopen(s);
         
         % Condição de parada do while (Porta conectada)
-        wrongPort=0;
+        Porta_Conectada=0;
         
         % Inicializando o botão de parada
-        handles.stop_now = 0; 
+        handles.stop_now = 0;
         
         % Atualizando o GUI data
         guidata(hObject,handles);
         
         % Abrindo o arquivo txt para armazenar os dados
-        fileID = fopen('Local_de_armazenamento_dos_dados.txt','w');
+        fileID = fopen('dados_Vanessa.txt','w');
         
         % Escrevendo o cabeçalho no arquivo txt
         fprintf(fileID,'%s\t%s\t%s\t%s\t%s\t%s\n','Ax','Ay','Az','Bx','By','Bz');
         
         % Condição de armazenamento dos dados no arquivo txt. Enquanto o botão de parada
         % não for acionado, permanece no while
+        %figure
+        hold on
         while ~(handles.stop_now)
             % Atualiza o gui data
+            
             drawnow();
             handles = guidata(hObject);
             
             % Se houver alguma coisa na serial a condição é verdadeira
             if s.BytesAvailable > 0
                 % Armazena os dados na variável data
-                data = fscanf(s)
-                %plot(data)
-                
+                data = fscanf(s);
+
                 % Grava os dados no arquivo txt aberto
                 fprintf(fileID,'%s\n',data);
+                matriz_dados = dlmread('dados_Vanessa.txt','',1,0);
+                
+                % Plota em tempo real o gráfico dos ângulos dos sensores
+                plot(handles.axes1,matriz_dados);
             end
         end
         
         disp('Parou');
         
         % Armazena os dados do txt numa matriz para avalia-los
-        matriz_dados = dlmread('Local_de_armazenamento_dos_dados.txt','',1,0);
+        %matriz_dados = dlmread('Local_de_armazenamento_dos_dados.txt','',1,0);
         
     catch
         % deleta a porta serial quando terminar o processo
@@ -155,16 +161,16 @@ while Porta_Conectada
         instrreset % close any wrongly opened connection
         
         % condição para iniciar o while da porta serial não conectada
-        wrongPort =1 ; % keep trying...
+        Porta_Conectada =1 ; % keep trying...
         
         disp('NaoFoiConectado')
     end
     
     % incremento do contador da porta serial
-    portNum = portNum + 1
+    Numero_da_Porta = Numero_da_Porta + 1
     
     % Se o número de porta serial for igual a 16, para o processo de busca da serial
-    if portNum == 16
+    if Numero_da_Porta == 16
         error('Arduino is not connected')
     end
 end
