@@ -75,65 +75,96 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in Parar.
 function Parar_Callback(hObject, eventdata, handles)
-% hObject    handle to Parar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% Quando o botão Parar Leitura for precionado, então o valor stop_now passa a ser 1
 handles.stop_now = 1;
+% Atualiza o gui data
 guidata(hObject, handles);
-
-
 
 
 % --- Executes on button press in Iniciar.
 function Iniciar_Callback(hObject, eventdata, handles)
-% hObject    handle to Iniciar (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global s 
+% variável de armazenamento da serial
+global s
 
-s = serial('COM14'); %assigns the object s to serial port
+% Busca pela serial do Arduino
+Numero_da_Porta=1;
+Porta_Conectada=1;
 
-set(s, 'InputBufferSize', 128); %number of bytes in inout buffer
-set(s, 'FlowControl', 'none');
-set(s, 'BaudRate', 9600);
-set(s, 'Parity', 'none');
-set(s, 'DataBits', 8);
-set(s, 'StopBit', 1);
-set(s, 'Timeout',100);
-%clc;
-
-disp(get(s,'Name'));
-prop(1)=(get(s,'BaudRate'));
-prop(2)=(get(s,'DataBits'));
-prop(3)=(get(s, 'StopBit'));
-prop(4)=(get(s, 'InputBufferSize'));
-
-disp([num2str(prop)]);
-
-fopen(s);           %opens the serial port
-handles.stop_now = 0; %Create stop_now in the handles structure
-guidata(hObject,handles);  %Update the GUI data
-
-fileID = fopen('dados_Bruno2_linha_reta.txt','w');
-fprintf(fileID,'%s\t%s\t%s\t%s\t%s\t%s\n','Ax','Ay','Az','Bx','By','Bz');
-
-
-while ~(handles.stop_now)
-    drawnow();
-    handles = guidata(hObject);
-    %data = fscanf(s)
-    if s.BytesAvailable > 0
-        data = fscanf(s)
-        fprintf(fileID,'%s\n',data);
+% Enquanto a porta não for conectada permanece no while
+while Porta_Conectada
+    s = serial(['COM' num2str(portNum)]);
+    try
+        % Setando os parâmetros da Serial
+        set(s, 'InputBufferSize', 128); %number of bytes in inout buffer
+        set(s, 'FlowControl', 'none');
+        set(s, 'BaudRate', 9600);
+        set(s, 'Parity', 'none');
+        set(s, 'DataBits', 8);
+        set(s, 'StopBit', 1);
+        set(s, 'Timeout',100);
+        
+        % Abrindo porta Serial
+        fopen(s);
+        
+        % Condição de parada do while (Porta conectada)
+        wrongPort=0;
+        
+        % Inicializando o botão de parada
+        handles.stop_now = 0; 
+        
+        % Atualizando o GUI data
+        guidata(hObject,handles);
+        
+        % Abrindo o arquivo txt para armazenar os dados
+        fileID = fopen('Local_de_armazenamento_dos_dados.txt','w');
+        
+        % Escrevendo o cabeçalho no arquivo txt
+        fprintf(fileID,'%s\t%s\t%s\t%s\t%s\t%s\n','Ax','Ay','Az','Bx','By','Bz');
+        
+        % Condição de armazenamento dos dados no arquivo txt. Enquanto o botão de parada
+        % não for acionado, permanece no while
+        while ~(handles.stop_now)
+            % Atualiza o gui data
+            drawnow();
+            handles = guidata(hObject);
+            
+            % Se houver alguma coisa na serial a condição é verdadeira
+            if s.BytesAvailable > 0
+                % Armazena os dados na variável data
+                data = fscanf(s)
+                %plot(data)
+                
+                % Grava os dados no arquivo txt aberto
+                fprintf(fileID,'%s\n',data);
+            end
+        end
+        
+        disp('Parou');
+        
+        % Armazena os dados do txt numa matriz para avalia-los
+        matriz_dados = dlmread('Local_de_armazenamento_dos_dados.txt','',1,0);
+        
+    catch
+        % deleta a porta serial quando terminar o processo
+        delete(s);
+        
+        % limpa a porta serial
+        clear s
+        
+        % desconecta todas as portas abertas
+        instrreset % close any wrongly opened connection
+        
+        % condição para iniciar o while da porta serial não conectada
+        wrongPort =1 ; % keep trying...
+        
+        disp('NaoFoiConectado')
     end
-    %flushinput(s)
+    
+    % incremento do contador da porta serial
+    portNum = portNum + 1
+    
+    % Se o número de porta serial for igual a 16, para o processo de busca da serial
+    if portNum == 16
+        error('Arduino is not connected')
+    end
 end
-fclose(s);
-matriz_dados = dlmread('dados_Bruno2_linha_reta.txt','',1,0);
-disp('Parou');
-
-
-
-%plot(matriz_dados);
-%delete(s);
-%clear s;
