@@ -21,17 +21,15 @@
 
 #include <SoftwareSerial.h>
 
-SoftwareSerial xbee(2, 3); //Arduino RX, TX
-int i = 0;
-int k = 0;
-char valor[7];
+SoftwareSerial xbee(2, 3);                // Arduino RX, TX
+int i = 0;                                // Quantidade de dados recebido pelo xbee
+int k = 0;                                // Índice do vetor valor
+char valor[7];                            // Armazena o valor dos dados recebido
 
 void setup(void)
 {
-  Serial.begin(9600);
-
-  // set the data rate for the SoftwareSerial port
-  xbee.begin(9600);
+  Serial.begin(9600);                     // BaudRate da Serial
+  xbee.begin(9600);                       // BaudRate do xbee
 
   delay(100);
 }
@@ -40,37 +38,36 @@ void setup(void)
 
 void loop(void)
 {
+  if (xbee.available() > 0) {             // Verificação de dados recebidos
 
+    byte frame = xbee.read();             // Armazena o primeiro dado do pacote
+    i++;                                  // Conta a quantidade de dados recebido do pacote
 
-  if (xbee.available() > 0) {
+    if (i > 15 && frame != 0xC2) {        // Condição de inicialização dos dados armazenado no pacote
 
-    byte frame = xbee.read();
-    i++;
+      char j = (char)frame;               // Converter o dado recebido em char
 
-    //    if(frame == 0xC2) Serial.print("Foi");
-    if (i > 15 && frame != 0xC2) {
-
-      char j = (char)frame;
-      //Serial.println(frame);
-      if (j == ' ' || j == ';') {
-        k = 0;
-        String str(valor);
-        Serial.print(atof(str.c_str()));
+      if (j == ' ' || j == ';') {         // Verifica a condição para realizar a conversão dos dados para inteiro
+        k = 0;                            // Zera o índice do vetor de caracter
+        String str(valor);                // Converter o vetor de caracter em string ... Ex. [1] [0] [0] [.] [5] [2] - > 100.52
+        Serial.print(atof(str.c_str()));  // Converte a String em número
         Serial.print("\t");
-        valor[0] = '\0'; valor[3] = '\0'; valor[6] = '\0';
+         
+         // Limpa o vetor de caracter
+        valor[0] = '\0'; valor[3] = '\0'; valor[6] = '\0';  
         valor[1] = '\0'; valor[4] = '\0';
         valor[2] = '\0'; valor[5] = '\0';
 
-        if (j == ';') {
+        if (j == ';') {                   // Condição para receber um novo pacote
           Serial.print("\n");
-          frame = 0x00;
-          i = 0;
+          frame = 0x00;                   // Limpa o frame
+          i = 0;                          // Zera a quantidade de dados do pacote recebido
         }
 
       }
-      else {
-        valor[k] = j;
-        k++;
+      else {                              // Caso a condição não seja verdadeira, armazena o caracter no vetor
+        valor[k] = j;                     // Guarda o caracter no vetor de caracteres
+        k++;                              // Incrementa o índice do vetor
       }
     }
   }
