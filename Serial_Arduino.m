@@ -22,7 +22,7 @@ function varargout = Serial_Arduino(varargin)
 
 % Edit the above text to modify the response to help Serial_Arduino
 
-% Last Modified by GUIDE v2.5 11-Apr-2018 14:38:20
+% Last Modified by GUIDE v2.5 16-Apr-2018 10:02:40
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,11 +80,99 @@ handles.stop_now = 1;
 % Atualiza o gui data
 guidata(hObject, handles);
 
+% --- Executes on button press in A_x.
+function A_x_Callback(hObject, eventdata, handles)
+% hObject    handle to A_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    plot(handles.axes1,matriz_dados(:,1),'r');
+end
+
+% --- Executes on button press in A_y.
+function A_y_Callback(hObject, eventdata, handles)
+% hObject    handle to A_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    plot(handles.axes1,matriz_dados(:,2),'b');
+end
+
+% --- Executes on button press in A_z.
+function A_z_Callback(hObject, eventdata, handles)
+% hObject    handle to A_z (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    
+    
+    plot(handles.axes1,matriz_dados(:,3),'g');
+end
+
+% --- Executes on button press in B_x.
+function B_x_Callback(hObject, eventdata, handles)
+% hObject    handle to B_x (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    
+    plot(handles.axes1,matriz_dados(:,4),'m');
+end
+
+% --- Executes on button press in B_y.
+function B_y_Callback(hObject, eventdata, handles)
+% hObject    handle to B_y (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    plot(handles.axes1,matriz_dados(:,5),'c');
+end
+
+% --- Executes on button press in B_z.
+function B_z_Callback(hObject, eventdata, handles)
+% hObject    handle to B_z (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global matriz_dados
+
+% Atualizando o GUI data
+guidata(hObject,handles);
+
+if(handles.stop_now == 1)
+    plot(handles.axes1,matriz_dados(:,6),'k');
+end
 
 % --- Executes on button press in Iniciar.
 function Iniciar_Callback(hObject, eventdata, handles)
 % variável de armazenamento da serial
 global s
+global matriz_dados
 
 % Busca pela serial do Arduino
 Numero_da_Porta=1;
@@ -121,6 +209,7 @@ while Porta_Conectada
         % Escrevendo o cabeçalho no arquivo txt
         fprintf(fileID,'%s\t%s\t%s\t%s\t%s\t%s\n','Ax','Ay','Az','Bx','By','Bz');
         
+        disp('Conectado!');
         % Condição de armazenamento dos dados no arquivo txt. Enquanto o botão de parada
         % não for acionado, permanece no while
         %figure
@@ -135,13 +224,39 @@ while Porta_Conectada
             if s.BytesAvailable > 0
                 % Armazena os dados na variável data
                 data = fscanf(s);
-
+                
                 % Grava os dados no arquivo txt aberto
                 fprintf(fileID,'%s\n',data);
                 matriz_dados = dlmread('dados_Vanessa.txt','',1,0);
                 
+                %%%%% Gráfico do sensor A (Coxa)
+                if get(handles.A_x, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,1),'r');
+                end
+                
+                if get(handles.A_y, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,2),'b');
+                end
+                
+                if get(handles.A_z, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,3),'g');
+                end
+                
+                %%%%% Gráfico do sensor B (Panturrilha)
+                if get(handles.B_x, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,4),'m');
+                end
+                
+                if get(handles.B_y, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,5),'c');
+                end
+                
+                if get(handles.B_z, 'Value') == 1
+                    plot(handles.axes1,matriz_dados(:,6),'k');
+                end
+                
                 % Plota em tempo real o gráfico dos ângulos dos sensores
-                plot(handles.axes1,matriz_dados);
+                
             end
         end
         
@@ -154,7 +269,7 @@ while Porta_Conectada
         % deleta a porta serial quando terminar o processo
         delete(s);
         
-        % limpa a porta serial
+        % limpa a porta serialSSSS
         clear s
         
         % desconecta todas as portas abertas
