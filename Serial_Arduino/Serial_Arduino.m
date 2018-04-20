@@ -33,12 +33,15 @@ gui_State = struct('gui_Name',       mfilename, ...
     'gui_LayoutFcn',  [] , ...
     'gui_Callback',   []);
 if nargin && ischar(varargin{1})
+    
     gui_State.gui_Callback = str2func(varargin{1});
 end
 
 if nargout
     [varargout{1:nargout}] = gui_mainfcn(gui_State, varargin{:});
+    
 else
+    
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
@@ -52,11 +55,22 @@ function Serial_Arduino_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to Serial_Arduino (see VARARGIN)
 
+%Vari√°veis globais
+global nome_arquivo                             % Nome do Arquivo que ser√° salvo os dados
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
+
+cor = ['r' 'b' 'g' 'm' 'c' 'k'];                % Declara√ß√£o das cores
+nome_arquivo = 'dados_Kassio.txt';              % Nome do arquivo
+matriz_dados = dlmread(nome_arquivo,'',1,0);    % Armazenamento dos dados
+
+hold on                                         % Replot
+zoom on                                         % posibilita o zoom na figura
 % Choose default command line output for Serial_Arduino
 handles.output = hObject;
-
+handles.stop_now = 1;                           % condi√ß√£o de parada
 % Update handles structure
-guidata(hObject, handles);
+guidata(hObject, handles);                      % Atualiza√ß√£o do gui
 
 % UIWAIT makes Serial_Arduino wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
@@ -75,8 +89,8 @@ varargout{1} = handles.output;
 
 % --- Executes on button press in Parar.
 function Parar_Callback(hObject, eventdata, handles)
-% Quando o bot„o Parar Leitura for precionado, ent„o o valor stop_now passa a ser 1
-handles.stop_now = 1;
+% Quando o bot√£o Parar Leitura for precionado, ent√£o o valor stop_now passa a ser 1
+handles.stop_now = 1;                           % Parar programa
 % Atualiza o gui data
 guidata(hObject, handles);
 
@@ -86,13 +100,21 @@ function A_x_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global matriz_dados
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
 
-% Atualizando o GUI data
-guidata(hObject,handles);
+grafico_vetor(1) = get(handles.A_x, 'Value');   % Armazena os dados da primeira coluna
+guidata(hObject,handles);                       % Atualizando o GUI data
 
-if(handles.stop_now == 1)
-    plot(handles.axes1,matriz_dados(:,1),'r');
+if(handles.stop_now == 1)                       % Verifica se o programa est√° parado
+    cla(handles.axes1,'reset');                 % Reseta o gr√°fico
+    hold on
+    for i = 1:length(grafico_vetor)             % Plota os dados no gr√°fico
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
 % --- Executes on button press in A_y.
@@ -100,13 +122,22 @@ function A_y_Callback(hObject, eventdata, handles)
 % hObject    handle to A_y (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global matriz_dados
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
 
+grafico_vetor(2) = get(handles.A_y, 'Value');   % Armazena os dados da segunda coluna
 % Atualizando o GUI data
 guidata(hObject,handles);
 
-if(handles.stop_now == 1)
-    plot(handles.axes1,matriz_dados(:,2),'b');
+if(handles.stop_now == 1)                       % Verifica se o programa est√° parado
+    cla(handles.axes1,'reset');                 % Reseta o gr√°fico
+    hold on
+    for i = 1:length(grafico_vetor)             % Plota os dados no gr√°fico
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
 % --- Executes on button press in A_z.
@@ -114,15 +145,23 @@ function A_z_Callback(hObject, eventdata, handles)
 % hObject    handle to A_z (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global matriz_dados
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
+
+grafico_vetor(3) = get(handles.A_z, 'Value');   % Armazena os dados da terceira coluna
 
 % Atualizando o GUI data
 guidata(hObject,handles);
 
 if(handles.stop_now == 1)
-    
-    
-    plot(handles.axes1,matriz_dados(:,3),'g');
+    cla(handles.axes1,'reset');
+    hold on
+    for i = 1:length(grafico_vetor)
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
 % --- Executes on button press in B_x.
@@ -130,14 +169,23 @@ function B_x_Callback(hObject, eventdata, handles)
 % hObject    handle to B_x (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global matriz_dados
 
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
+
+grafico_vetor(4) = get(handles.B_x, 'Value');   % Armazena os dados da quarta coluna
 % Atualizando o GUI data
 guidata(hObject,handles);
 
 if(handles.stop_now == 1)
-    
-    plot(handles.axes1,matriz_dados(:,4),'m');
+    cla(handles.axes1,'reset');
+    hold on
+    for i = 1:length(grafico_vetor)
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
 % --- Executes on button press in B_y.
@@ -145,13 +193,22 @@ function B_y_Callback(hObject, eventdata, handles)
 % hObject    handle to B_y (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global matriz_dados
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
 
+grafico_vetor(5) = get(handles.B_y, 'Value');   % Armazena os dados da quinta coluna
 % Atualizando o GUI data
 guidata(hObject,handles);
 
 if(handles.stop_now == 1)
-    plot(handles.axes1,matriz_dados(:,5),'c');
+    cla(handles.axes1,'reset');
+    hold on
+    for i = 1:length(grafico_vetor)
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
 % --- Executes on button press in B_z.
@@ -159,31 +216,43 @@ function B_z_Callback(hObject, eventdata, handles)
 % hObject    handle to B_z (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-global matriz_dados
+global grafico_vetor                            % Separa os dados para o plot
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
+
+grafico_vetor(6) = get(handles.B_z, 'Value');   % Armazena os dados da sexta coluna
 
 % Atualizando o GUI data
 guidata(hObject,handles);
 
 if(handles.stop_now == 1)
-    plot(handles.axes1,matriz_dados(:,6),'k');
+    cla(handles.axes1,'reset');
+    hold on
+    for i = 1:length(grafico_vetor)
+        if(grafico_vetor(i) == 1)
+            plot(handles.axes1,matriz_dados(:,i),cor(i));
+        end
+    end
 end
 
+
 % --- Executes on button press in Iniciar.
+
 function Iniciar_Callback(hObject, eventdata, handles)
-% vari·vel de armazenamento da serial
-global s
-global matriz_dados
 
-% Busca pela serial do Arduino
-Numero_da_Porta=1;
-Porta_Conectada=1;
+global s                                        % vari√°vel de armazenamento da serial
+global nome_arquivo                             % Nome do Arquivo que ser√° salvo os dados
+global cor                                      % Cor para cada dados da figura
+global matriz_dados                             % Matriz de dados
 
-% Enquanto a porta n„o for conectada permanece no while
-while Porta_Conectada
+Numero_da_Porta = 3;                            % Busca pela serial do Arduino
+Porta_Conectada = 1;
+
+while Porta_Conectada                           % Enquanto a porta n√£o for conectada permanece no while
     s = serial(['COM' num2str(Numero_da_Porta)]);
     try
-        % Setando os par‚metros da Serial
-        set(s, 'InputBufferSize', 128); %number of bytes in inout buffer
+        % Setando os par√¢metros da Serial
+        set(s, 'InputBufferSize', 128);
         set(s, 'FlowControl', 'none');
         set(s, 'BaudRate', 9600);
         set(s, 'Parity', 'none');
@@ -191,79 +260,71 @@ while Porta_Conectada
         set(s, 'StopBit', 1);
         set(s, 'Timeout',100);
         
-        % Abrindo porta Serial
-        fopen(s);
+        fopen(s);                               % Abrindo porta Serial
+        Porta_Conectada = 0;                    % Condi√ß√£o de parada do while (Porta conectada)
+        handles.stop_now = 0;                   % Inicializando o bot√£o de parada
+        guidata(hObject,handles)                % Atualizando o GUI data
+        fileID = fopen(nome_arquivo,'w');       % Abrindo o arquivo txt para armazenar os dados
         
-        % CondiÁ„o de parada do while (Porta conectada)
-        Porta_Conectada=0;
-        
-        % Inicializando o bot„o de parada
-        handles.stop_now = 0;
-        
-        % Atualizando o GUI data
-        guidata(hObject,handles);
-        
-        % Abrindo o arquivo txt para armazenar os dados
-        fileID = fopen('dados_Vanessa.txt','w');
-        
-        % Escrevendo o cabeÁalho no arquivo txt
+        % Escrevendo o cabe√ßalho no arquivo txt
         fprintf(fileID,'%s\t%s\t%s\t%s\t%s\t%s\n','Ax','Ay','Az','Bx','By','Bz');
         
         disp('Conectado!');
-        % CondiÁ„o de armazenamento dos dados no arquivo txt. Enquanto o bot„o de parada
-        % n„o for acionado, permanece no while
-        %figure
-        hold on
+        % Condi√ß√£o de armazenamento dos dados no arquivo txt. Enquanto o bot√£o de parada
+        % n√£o for acionado, permanece no while
+
         while ~(handles.stop_now)
             % Atualiza o gui data
-            
             drawnow();
             handles = guidata(hObject);
             
-            % Se houver alguma coisa na serial a condiÁ„o È verdadeira
+            % Se houver alguma coisa na serial a condi√ß√£o √© verdadeira
             if s.BytesAvailable > 0
-                % Armazena os dados na vari·vel data
+                % Armazena os dados na vari√°vel data
                 data = fscanf(s);
                 
                 % Grava os dados no arquivo txt aberto
                 fprintf(fileID,'%s\n',data);
-                matriz_dados = dlmread('dados_Vanessa.txt','',1,0);
+                matriz_dados = dlmread(nome_arquivo,'',1,0);
                 
-                %%%%% Gr·fico do sensor A (Coxa)
+                %%%%% Gr√°fico do sensor A (Coxa)
+                cla(handles.axes1);
                 if get(handles.A_x, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,1),'r');
+                    plot(handles.axes1,matriz_dados(:,1),cor(1));
+                    set(handles.Ax_value, 'String', matriz_dados(length(matriz_dados),1));
                 end
                 
                 if get(handles.A_y, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,2),'b');
+                    plot(handles.axes1,matriz_dados(:,2),cor(2));
+                    set(handles.Ay_value, 'String', matriz_dados(length(matriz_dados),2));
                 end
                 
                 if get(handles.A_z, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,3),'g');
+                    plot(handles.axes1,matriz_dados(:,3),cor(3));
+                    set(handles.Az_value, 'String', matriz_dados(length(matriz_dados),3));
                 end
                 
-                %%%%% Gr·fico do sensor B (Panturrilha)
+                %%%%% Gr√°fico do sensor B (Panturrilha)
                 if get(handles.B_x, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,4),'m');
+                    plot(handles.axes1,matriz_dados(:,4),cor(4));
+                    set(handles.Bx_value, 'String', matriz_dados(length(matriz_dados),4));
                 end
                 
                 if get(handles.B_y, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,5),'c');
+                    plot(handles.axes1,matriz_dados(:,5),cor(5));
+                    set(handles.By_value, 'String', matriz_dados(length(matriz_dados),5));
                 end
                 
                 if get(handles.B_z, 'Value') == 1
-                    plot(handles.axes1,matriz_dados(:,6),'k');
+                    plot(handles.axes1,matriz_dados(:,6),cor(6));
+                    set(handles.Bz_value, 'String', matriz_dados(length(matriz_dados),6));
                 end
-                
-                % Plota em tempo real o gr·fico dos ‚ngulos dos sensores
+                % Plota em tempo real o gr√°fico dos √¢ngulos dos sensores
                 
             end
         end
         
         disp('Parou');
-        
-        % Armazena os dados do txt numa matriz para avalia-los
-        %matriz_dados = dlmread('Local_de_armazenamento_dos_dados.txt','',1,0);
         
     catch
         % deleta a porta serial quando terminar o processo
@@ -275,16 +336,14 @@ while Porta_Conectada
         % desconecta todas as portas abertas
         instrreset % close any wrongly opened connection
         
-        % condiÁ„o para iniciar o while da porta serial n„o conectada
-        Porta_Conectada =1 ; % keep trying...
-        
-        disp('NaoFoiConectado')
+        % condi√ß√£o para iniciar o while da porta serial n√£o conectada
+        Porta_Conectada = 1 ; % keep trying...
     end
     
     % incremento do contador da porta serial
     Numero_da_Porta = Numero_da_Porta + 1
     
-    % Se o n˙mero de porta serial for igual a 16, para o processo de busca da serial
+    % Se o n√∫mero de porta serial for igual a 16, para o processo de busca da serial
     if Numero_da_Porta == 16
         error('Arduino is not connected')
     end
